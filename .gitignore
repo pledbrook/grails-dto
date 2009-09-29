@@ -1,0 +1,4 @@
+grails-dto*.zip
+plugin.xml
+target/
+tmp/
