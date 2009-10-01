@@ -32,14 +32,14 @@ class DefaultGrailsDtoGenerator {
             def propType = prop.type
             def field = [ name: prop.name ]
 
-            if (prop.referencedType == propType) {
+            if (prop.referencedPropertyType == propType) {
                 field["typeString"] = propType.simpleName + (prop.association ? "DTO" : "")
                 addImportIfNecessary(imports, dcPkg, propType, prop.association)
             }
             else {
-                field["typeString"] = propType.simpleName + '<' + prop.referencedType.simpleName + (prop.association ? "DTO" : "") + '>'
+                field["typeString"] = propType.simpleName + '<' + prop.referencedPropertyType.simpleName + (prop.association ? "DTO" : "") + '>'
                 addImportIfNecessary(imports, dcPkg, propType, false)
-                addImportIfNecessary(imports, dcPkg, prop.referencedType, prop.association)
+                addImportIfNecessary(imports, dcPkg, prop.referencedPropertyType, prop.association)
             }
 
             // Store the reference domain class if this property is

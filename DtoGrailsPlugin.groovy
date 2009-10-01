@@ -1,3 +1,4 @@
+import org.codehaus.groovy.grails.plugins.dto.DefaultGrailsDtoGenerator
 import org.dozer.spring.DozerBeanMapperFactoryBean
 
 class DtoGrailsPlugin {
@@ -27,6 +28,7 @@ map domain class instances to DTO instances.
     def documentation = "http://grails.org/plugin/dto"
 
     def doWithSpring = {
+        dtoGenerator(DefaultGrailsDtoGenerator)
         dozerMapper(DozerBeanMapperFactoryBean)
     }
 

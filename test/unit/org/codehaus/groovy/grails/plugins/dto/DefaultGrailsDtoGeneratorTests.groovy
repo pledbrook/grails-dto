@@ -16,41 +16,41 @@ class DefaultGrailsDtoGeneratorTests extends GroovyTestCase {
 
         mockRootClass.clazz.returns(org.example.MyDomain).stub()
         mockRootClass.shortName.returns("MyDomain").stub()
-        mockRootClass.identifier.returns([ name: "id", association: false, type: long, referencedType: long ]).stub()
+        mockRootClass.identifier.returns([ name: "id", association: false, type: long, referencedPropertyType: long ]).stub()
         mockRootClass.persistentProperties.returns([
-            [ name: "name", association: false, type: String, referencedType: String ],
-            [ name: "age", association: false, type: int, referencedType: int ],
+            [ name: "name", association: false, type: String, referencedPropertyType: String ],
+            [ name: "age", association: false, type: int, referencedPropertyType: int ],
             [ name: "theOther",
               association: true,
               type: org.example.OtherDomain,
-              referencedType: org.example.OtherDomain,
+              referencedPropertyType: org.example.OtherDomain,
               referencedDomainClass: mockOtherDomain ],
             [ name: "items",
               association: true,
               type: List,
-              referencedType: org.example.sub.HasMany,
+              referencedPropertyType: org.example.sub.HasMany,
               referencedDomainClass: mockHasMany ]
         ]).stub()
         
         mockOtherDomain.clazz.returns(org.example.OtherDomain).stub()
         mockOtherDomain.shortName.returns("OtherDomain").stub()
-        mockOtherDomain.identifier.returns([ name: "id", association: false, type: Long, referencedType: Long ]).stub()
+        mockOtherDomain.identifier.returns([ name: "id", association: false, type: Long, referencedPropertyType: Long ]).stub()
         mockOtherDomain.persistentProperties.returns([
-            [ name: "type", association: false, type: org.example.SomeType, referencedType: org.example.SomeType ],
+            [ name: "type", association: false, type: org.example.SomeType, referencedPropertyType: org.example.SomeType ],
             [ name: "owner",
               association: true,
               type: org.example.MyDomain,
-              referencedType: org.example.MyDomain,
+              referencedPropertyType: org.example.MyDomain,
               referencedDomainClass: mockOtherDomain ]
         ]).stub()
         
         mockHasMany.clazz.returns(org.example.sub.HasMany).stub()
         mockHasMany.shortName.returns("HasMany").stub()
-        mockHasMany.identifier.returns([ name: "uniqueName", association: false, type: String, referencedType: String ]).stub()
+        mockHasMany.identifier.returns([ name: "uniqueName", association: false, type: String, referencedPropertyType: String ]).stub()
         mockHasMany.persistentProperties.returns([
-            [ name: "number", association: false, type: Integer, referencedType: Integer ],
-            [ name: "amount", association: false, type: BigDecimal, referencedType: BigDecimal ],
-            [ name: "stuff", association: false, type: String, referencedType: String ]
+            [ name: "number", association: false, type: Integer, referencedPropertyType: Integer ],
+            [ name: "amount", association: false, type: BigDecimal, referencedPropertyType: BigDecimal ],
+            [ name: "stuff", association: false, type: String, referencedPropertyType: String ]
         ]).stub()
 
         play {
@@ -134,15 +134,15 @@ public class HasManyDTO {
 
     void testGenerateNoRecurse() {
         def testProperties = [
-            [ name: "name", association: false, type: String, referencedType: String ],
-            [ name: "age", association: false, type: int, referencedType: int ],
-            [ name: "theOther", association: true, type: org.example.OtherDomain, referencedType: org.example.OtherDomain ],
-            [ name: "items", association: true, type: List, referencedType: org.example.sub.HasMany ]
+            [ name: "name", association: false, type: String, referencedPropertyType: String ],
+            [ name: "age", association: false, type: int, referencedPropertyType: int ],
+            [ name: "theOther", association: true, type: org.example.OtherDomain, referencedPropertyType: org.example.OtherDomain ],
+            [ name: "items", association: true, type: List, referencedPropertyType: org.example.sub.HasMany ]
         ]
         def mockDomainClass = mock(GrailsDomainClass)
         mockDomainClass.clazz.returns([ package: [ name: "org.example" ] ])
         mockDomainClass.shortName.returns("MyDomain")
-        mockDomainClass.identifier.returns([ name: "id", association: false, type: long, referencedType: long ])
+        mockDomainClass.identifier.returns([ name: "id", association: false, type: long, referencedPropertyType: long ])
         mockDomainClass.persistentProperties.returns(testProperties)
         
         play {
