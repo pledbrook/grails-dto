@@ -1,0 +1,23 @@
+Grails DTO Plugin
+-----------------
+
+Ever tried to create and maintain DTO classes for your domain classes? It's a pain.
+This plugin automates both the creation of the DTO classes and the binding of domain
+instances to those DTOs.
+
+To create a DTO, just run the command:
+
+  grails generate-dto Book
+
+This will generate DTOs for both Book and any of its relations. The DTO classes can
+be found under "src/java". Want to create DTOs for all your domain classes? Simple:
+
+  grails generate-dto --all
+
+Once you've generated the DTO source files, how do you convert from domain instances
+to the corresponding DTOs? The plugin provides two options:
+
+1) domainObject as DTO
+2) domainObject.toDTO()
+
+That's it! Hope you enjoy.
