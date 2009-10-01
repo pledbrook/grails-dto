@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 import org.example.PostDTO;
 
-public class SecUserDTO {
+public class SecUserDTO implements grails.plugins.dto.DTO {
     private String id;
     private Date dateOfBirth;
     private String email;

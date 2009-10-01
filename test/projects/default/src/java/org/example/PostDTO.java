@@ -2,7 +2,7 @@ package org.example;
 
 import org.example.security.SecUserDTO;
 
-public class PostDTO {
+public class PostDTO implements grails.plugins.dto.DTO {
     private Long id;
     private String content;
     private CategoryDTO category;

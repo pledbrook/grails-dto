@@ -8,4 +8,10 @@ class Post {
     int priority
 
     static belongsTo = [ user: SecUser ]
+
+    static constraints = {
+        content()
+        category(nullable: true)
+        priority()
+    }
 }

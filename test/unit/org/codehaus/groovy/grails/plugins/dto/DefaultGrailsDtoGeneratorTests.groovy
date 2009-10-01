@@ -71,7 +71,7 @@ package org.example;
 import java.util.List;
 import org.example.sub.HasManyDTO;
 
-public class MyDomainDTO {
+public class MyDomainDTO implements grails.plugins.dto.DTO {
     private long id;
     private String name;
     private int age;
@@ -94,7 +94,7 @@ public class MyDomainDTO {
             assertEquals """\
 package org.example;
 
-public class OtherDomainDTO {
+public class OtherDomainDTO implements grails.plugins.dto.DTO {
     private Long id;
     private SomeType type;
     private MyDomainDTO owner;
@@ -113,7 +113,7 @@ package org.example.sub;
 
 import java.math.BigDecimal;
 
-public class HasManyDTO {
+public class HasManyDTO implements grails.plugins.dto.DTO {
     private String uniqueName;
     private Integer number;
     private BigDecimal amount;
@@ -156,7 +156,7 @@ package org.example;
 import java.util.List;
 import org.example.sub.HasManyDTO;
 
-public class MyDomainDTO {
+public class MyDomainDTO implements grails.plugins.dto.DTO {
     private long id;
     private String name;
     private int age;

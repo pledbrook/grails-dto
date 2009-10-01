@@ -2,7 +2,7 @@ package org.example.security;
 
 import java.util.Set;
 
-public class SecRoleDTO {
+public class SecRoleDTO implements grails.plugins.dto.DTO {
     private Long id;
     private Set<SecUserDTO> users;
     private String name;

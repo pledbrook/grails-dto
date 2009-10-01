@@ -2,7 +2,7 @@ package org.example;
 
 import java.util.Set;
 
-public class CategoryDTO {
+public class CategoryDTO implements grails.plugins.dto.DTO {
     private Long id;
     private String name;
     private Set<PostDTO> posts;

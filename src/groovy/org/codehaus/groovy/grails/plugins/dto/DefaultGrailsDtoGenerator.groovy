@@ -65,7 +65,7 @@ class DefaultGrailsDtoGenerator {
         }
 
         // Next, the class declaration.
-        writer.write "public class ${dc.shortName}DTO {${eol}"
+        writer.write "public class ${dc.shortName}DTO implements grails.plugins.dto.DTO {${eol}"
 
         // The private fields.
         fields.each { field ->

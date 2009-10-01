@@ -1,6 +1,6 @@
 package org.example;
 
-public class WikiContentDTO {
+public class WikiContentDTO implements grails.plugins.dto.DTO {
     private Long id;
     private String content;
 
