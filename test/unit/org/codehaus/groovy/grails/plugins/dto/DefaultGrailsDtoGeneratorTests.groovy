@@ -72,6 +72,8 @@ import java.util.List;
 import org.example.sub.HasManyDTO;
 
 public class MyDomainDTO implements grails.plugins.dto.DTO {
+    private static final long serialVersionUID = 1L;
+
     private long id;
     private String name;
     private int age;
@@ -95,6 +97,8 @@ public class MyDomainDTO implements grails.plugins.dto.DTO {
 package org.example;
 
 public class OtherDomainDTO implements grails.plugins.dto.DTO {
+    private static final long serialVersionUID = 1L;
+
     private Long id;
     private SomeType type;
     private MyDomainDTO owner;
@@ -114,6 +118,8 @@ package org.example.sub;
 import java.math.BigDecimal;
 
 public class HasManyDTO implements grails.plugins.dto.DTO {
+    private static final long serialVersionUID = 1L;
+
     private String uniqueName;
     private Integer number;
     private BigDecimal amount;
@@ -157,6 +163,8 @@ import java.util.List;
 import org.example.sub.HasManyDTO;
 
 public class MyDomainDTO implements grails.plugins.dto.DTO {
+    private static final long serialVersionUID = 1L;
+
     private long id;
     private String name;
     private int age;

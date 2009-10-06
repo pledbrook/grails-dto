@@ -3,6 +3,8 @@ package org.example.security;
 import java.util.Set;
 
 public class SecRoleDTO implements grails.plugins.dto.DTO {
+    private static final long serialVersionUID = 1L;
+
     private Long id;
     private Set<SecUserDTO> users;
     private String name;

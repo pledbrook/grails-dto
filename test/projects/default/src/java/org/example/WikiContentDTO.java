@@ -1,6 +1,8 @@
 package org.example;
 
 public class WikiContentDTO implements grails.plugins.dto.DTO {
+    private static final long serialVersionUID = 1L;
+
     private Long id;
     private String content;
 

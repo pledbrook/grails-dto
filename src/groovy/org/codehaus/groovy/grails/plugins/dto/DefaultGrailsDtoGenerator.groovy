@@ -66,6 +66,9 @@ class DefaultGrailsDtoGenerator {
 
         // Next, the class declaration.
         writer.write "public class ${dc.shortName}DTO implements grails.plugins.dto.DTO {${eol}"
+        
+        // A serialUID, since DTOs are serialisable.
+        writer.write "    private static final long serialVersionUID = 1L;${eol}${eol}"
 
         // The private fields.
         fields.each { field ->

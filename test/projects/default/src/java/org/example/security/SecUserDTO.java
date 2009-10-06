@@ -6,6 +6,8 @@ import java.util.Set;
 import org.example.PostDTO;
 
 public class SecUserDTO implements grails.plugins.dto.DTO {
+    private static final long serialVersionUID = 1L;
+
     private String id;
     private Date dateOfBirth;
     private String email;

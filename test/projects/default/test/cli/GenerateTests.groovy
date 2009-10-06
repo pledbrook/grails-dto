@@ -6,12 +6,12 @@ import org.apache.commons.codec.digest.DigestUtils
  * plugin.
  */
 class GenerateTests extends AbstractCliTestCase {
-    private static final String POST_MD5 = "af10d343b663aeb003cadafeda9c2fea"
-    private static final String CATEGORY_MD5 = "33fe89e695cd9a1691226bb0007057ac"
-    private static final String SEC_USER_MD5 = "ca3fba54326436aaa5d6e1f752ac155f"
-    private static final String SEC_ROLE_MD5 = "20bd8c7ae5584b611bf98aaa24ec0d9c"
-    private static final String PAGE_MD5 = "f400bd478dd269ef1e0cedc48735d9eb"
-    private static final String WIKI_CONTENT_MD5 = "cf8cde2bd4f43a42af5ae21029734eb8"
+    private static final String POST_MD5 = "a8cba6ed59856a1e2454077a366de1f7"
+    private static final String CATEGORY_MD5 = "3a1e6f0b0969e1e43fccaa8e67811384"
+    private static final String SEC_USER_MD5 = "62bd80e9500ac4c304eca89a99a894d7"
+    private static final String SEC_ROLE_MD5 = "f69121ac99527917209667e464953db4"
+    private static final String PAGE_MD5 = "79de78d30905f521c157f8ca1f195a86"
+    private static final String WIKI_CONTENT_MD5 = "cb8c176f3e4aad8f8b583061a010527f"
 
     private final File srcDir = new File("src/java")
     private final File postDto = new File(srcDir, "org/example/PostDTO.java")

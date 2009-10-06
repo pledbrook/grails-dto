@@ -3,6 +3,8 @@ package org.example;
 import org.example.security.SecUserDTO;
 
 public class PostDTO implements grails.plugins.dto.DTO {
+    private static final long serialVersionUID = 1L;
+
     private Long id;
     private String content;
     private CategoryDTO category;
