@@ -5,6 +5,49 @@ import org.gmock.WithGMock
 
 @WithGMock
 class DefaultGrailsDtoGeneratorTests extends GroovyTestCase {
+    void testGetTargetPackage() {
+        def generator = new DefaultGrailsDtoGenerator(false)
+        generator.packageTransforms = [ "net.nowhere": "org.ex.dto" ]
+        
+        assertEquals "com.google", generator.getTargetPackage("com.google")
+        assertEquals "com.google.groups", generator.getTargetPackage("com.google.groups")
+        assertEquals "org.another", generator.getTargetPackage("org.another")
+        assertEquals "org.ex.dto", generator.getTargetPackage("net.nowhere")
+        assertEquals "org.ex.dto.sub", generator.getTargetPackage("net.nowhere.sub")
+    }
+
+    void testGetTargetPackageWithWildcard() {
+        def generator = new DefaultGrailsDtoGenerator(false)
+        generator.packageTransforms = [ "*": "org.another.client" ]
+        
+        assertEquals "org.another.client", generator.getTargetPackage("com.google")
+        assertEquals "org.another.client", generator.getTargetPackage("com.google.groups")
+        assertEquals "org.another.client", generator.getTargetPackage("org.another")
+        assertEquals "org.another.client", generator.getTargetPackage("net.nowhere")
+        assertEquals "org.another.client", generator.getTargetPackage("net.nowhere.sub")
+    }
+
+    void testGetTargetPackageNoTransforms() {
+        def generator = new DefaultGrailsDtoGenerator(false)
+        
+        assertEquals "com.google", generator.getTargetPackage("com.google")
+        assertEquals "com.google.groups", generator.getTargetPackage("com.google.groups")
+        assertEquals "org.another", generator.getTargetPackage("org.another")
+        assertEquals "net.nowhere", generator.getTargetPackage("net.nowhere")
+        assertEquals "net.nowhere.sub", generator.getTargetPackage("net.nowhere.sub")
+    }
+
+    void testGetTargetPackageWithWildcardAndOtherTransforms() {
+        def generator = new DefaultGrailsDtoGenerator(false)
+        generator.packageTransforms = [ "*": "org.another.client", "net.nowhere": "org.ex.dto" ]
+        
+        assertEquals "org.another.client", generator.getTargetPackage("com.google")
+        assertEquals "org.another.client", generator.getTargetPackage("com.google.groups")
+        assertEquals "org.another.client", generator.getTargetPackage("org.another")
+        assertEquals "org.ex.dto", generator.getTargetPackage("net.nowhere")
+        assertEquals "org.ex.dto.sub", generator.getTargetPackage("net.nowhere.sub")
+    }
+
     void testGenerate() {
         def outDir = new File("tmp/src/java")
         outDir.deleteDir()
@@ -183,6 +226,277 @@ public class MyDomainDTO implements grails.plugins.dto.DTO {
     public void setItems(List<HasManyDTO> items) { this.items = items; }
 }
 """, writer.toString()
+        }
+    }
+
+    void testGenerateWithWildcardPackageTransform() {
+        def outDir = new File("tmp/src/java")
+        outDir.deleteDir()
+
+        // Mock the domain class descriptors.
+        def mockRootClass = mock(GrailsDomainClass)
+        def mockOtherDomain = mock(GrailsDomainClass)
+        def mockHasMany = mock(GrailsDomainClass)
+
+        mockRootClass.clazz.returns(org.example.MyDomain).stub()
+        mockRootClass.shortName.returns("MyDomain").stub()
+        mockRootClass.identifier.returns([ name: "id", association: false, type: long, referencedPropertyType: long ]).stub()
+        mockRootClass.persistentProperties.returns([
+            [ name: "name", association: false, type: String, referencedPropertyType: String ],
+            [ name: "age", association: false, type: int, referencedPropertyType: int ],
+            [ name: "theOther",
+              association: true,
+              type: org.example.OtherDomain,
+              referencedPropertyType: org.example.OtherDomain,
+              referencedDomainClass: mockOtherDomain ],
+            [ name: "items",
+              association: true,
+              type: List,
+              referencedPropertyType: org.example.sub.HasMany,
+              referencedDomainClass: mockHasMany ]
+        ]).stub()
+        
+        mockOtherDomain.clazz.returns(org.example.OtherDomain).stub()
+        mockOtherDomain.shortName.returns("OtherDomain").stub()
+        mockOtherDomain.identifier.returns([ name: "id", association: false, type: Long, referencedPropertyType: Long ]).stub()
+        mockOtherDomain.persistentProperties.returns([
+            [ name: "type", association: false, type: org.example.SomeType, referencedPropertyType: org.example.SomeType ],
+            [ name: "owner",
+              association: true,
+              type: org.example.MyDomain,
+              referencedPropertyType: org.example.MyDomain,
+              referencedDomainClass: mockOtherDomain ]
+        ]).stub()
+        
+        mockHasMany.clazz.returns(org.example.sub.HasMany).stub()
+        mockHasMany.shortName.returns("HasMany").stub()
+        mockHasMany.identifier.returns([ name: "uniqueName", association: false, type: String, referencedPropertyType: String ]).stub()
+        mockHasMany.persistentProperties.returns([
+            [ name: "number", association: false, type: Integer, referencedPropertyType: Integer ],
+            [ name: "amount", association: false, type: BigDecimal, referencedPropertyType: BigDecimal ],
+            [ name: "stuff", association: false, type: String, referencedPropertyType: String ]
+        ]).stub()
+
+        play {
+            def generator = new DefaultGrailsDtoGenerator(false)
+            generator.packageTransforms = [ "*": "org.another.client", "net.nowhere": "org.ex.dto" ]
+            generator.generate(mockRootClass, outDir, true)
+
+            def myDomainDtoFile = new File(outDir, "org/another/client/MyDomainDTO.java")
+            def otherDomainDtoFile = new File(outDir, "org/another/client/OtherDomainDTO.java")
+            def hasManyDtoFile = new File(outDir, "org/another/client/HasManyDTO.java")
+
+            assertTrue "MyDomainDTO is missing.", myDomainDtoFile.exists()
+            assertTrue "OtherDomainDTO is missing.", otherDomainDtoFile.exists()
+            assertTrue "HasManyDTO is missing.", hasManyDtoFile.exists()
+
+            assertEquals """\
+package org.another.client;
+
+import java.util.List;
+
+public class MyDomainDTO implements grails.plugins.dto.DTO {
+    private static final long serialVersionUID = 1L;
+
+    private long id;
+    private String name;
+    private int age;
+    private OtherDomainDTO theOther;
+    private List<HasManyDTO> items;
+
+    public long getId() { return id; }
+    public void setId(long id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public int getAge() { return age; }
+    public void setAge(int age) { this.age = age; }
+    public OtherDomainDTO getTheOther() { return theOther; }
+    public void setTheOther(OtherDomainDTO theOther) { this.theOther = theOther; }
+    public List<HasManyDTO> getItems() { return items; }
+    public void setItems(List<HasManyDTO> items) { this.items = items; }
+}
+""", myDomainDtoFile.text
+
+            assertEquals """\
+package org.another.client;
+
+import org.example.SomeType;
+
+public class OtherDomainDTO implements grails.plugins.dto.DTO {
+    private static final long serialVersionUID = 1L;
+
+    private Long id;
+    private SomeType type;
+    private MyDomainDTO owner;
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public SomeType getType() { return type; }
+    public void setType(SomeType type) { this.type = type; }
+    public MyDomainDTO getOwner() { return owner; }
+    public void setOwner(MyDomainDTO owner) { this.owner = owner; }
+}
+""", otherDomainDtoFile.text
+
+            assertEquals """\
+package org.another.client;
+
+import java.math.BigDecimal;
+
+public class HasManyDTO implements grails.plugins.dto.DTO {
+    private static final long serialVersionUID = 1L;
+
+    private String uniqueName;
+    private Integer number;
+    private BigDecimal amount;
+    private String stuff;
+
+    public String getUniqueName() { return uniqueName; }
+    public void setUniqueName(String uniqueName) { this.uniqueName = uniqueName; }
+    public Integer getNumber() { return number; }
+    public void setNumber(Integer number) { this.number = number; }
+    public BigDecimal getAmount() { return amount; }
+    public void setAmount(BigDecimal amount) { this.amount = amount; }
+    public String getStuff() { return stuff; }
+    public void setStuff(String stuff) { this.stuff = stuff; }
+}
+""", hasManyDtoFile.text
+        }
+    }
+
+    void testGenerateWithPackageTransform() {
+        def outDir = new File("tmp/src/java")
+        outDir.deleteDir()
+
+        // Mock the domain class descriptors.
+        def mockRootClass = mock(GrailsDomainClass)
+        def mockOtherDomain = mock(GrailsDomainClass)
+        def mockHasMany = mock(GrailsDomainClass)
+
+        mockRootClass.clazz.returns(org.example.MyDomain).stub()
+        mockRootClass.shortName.returns("MyDomain").stub()
+        mockRootClass.identifier.returns([ name: "id", association: false, type: long, referencedPropertyType: long ]).stub()
+        mockRootClass.persistentProperties.returns([
+            [ name: "name", association: false, type: String, referencedPropertyType: String ],
+            [ name: "age", association: false, type: int, referencedPropertyType: int ],
+            [ name: "theOther",
+              association: true,
+              type: org.example.OtherDomain,
+              referencedPropertyType: org.example.OtherDomain,
+              referencedDomainClass: mockOtherDomain ],
+            [ name: "items",
+              association: true,
+              type: List,
+              referencedPropertyType: org.example.sub.HasMany,
+              referencedDomainClass: mockHasMany ]
+        ]).stub()
+        
+        mockOtherDomain.clazz.returns(org.example.OtherDomain).stub()
+        mockOtherDomain.shortName.returns("OtherDomain").stub()
+        mockOtherDomain.identifier.returns([ name: "id", association: false, type: Long, referencedPropertyType: Long ]).stub()
+        mockOtherDomain.persistentProperties.returns([
+            [ name: "type", association: false, type: org.example.SomeType, referencedPropertyType: org.example.SomeType ],
+            [ name: "owner",
+              association: true,
+              type: org.example.MyDomain,
+              referencedPropertyType: org.example.MyDomain,
+              referencedDomainClass: mockOtherDomain ]
+        ]).stub()
+        
+        mockHasMany.clazz.returns(org.example.sub.HasMany).stub()
+        mockHasMany.shortName.returns("HasMany").stub()
+        mockHasMany.identifier.returns([ name: "uniqueName", association: false, type: String, referencedPropertyType: String ]).stub()
+        mockHasMany.persistentProperties.returns([
+            [ name: "number", association: false, type: Integer, referencedPropertyType: Integer ],
+            [ name: "amount", association: false, type: BigDecimal, referencedPropertyType: BigDecimal ],
+            [ name: "stuff", association: false, type: String, referencedPropertyType: String ]
+        ]).stub()
+
+        play {
+            def generator = new DefaultGrailsDtoGenerator(false)
+            generator.packageTransforms = [ "*": "org.another.client", "org.example": "org.ex.dto" ]
+            generator.generate(mockRootClass, outDir, true)
+
+            def myDomainDtoFile = new File(outDir, "org/ex/dto/MyDomainDTO.java")
+            def otherDomainDtoFile = new File(outDir, "org/ex/dto/OtherDomainDTO.java")
+            def hasManyDtoFile = new File(outDir, "org/ex/dto/sub/HasManyDTO.java")
+
+            assertTrue "MyDomainDTO is missing.", myDomainDtoFile.exists()
+            assertTrue "OtherDomainDTO is missing.", otherDomainDtoFile.exists()
+            assertTrue "HasManyDTO is missing.", hasManyDtoFile.exists()
+
+            assertEquals """\
+package org.ex.dto;
+
+import java.util.List;
+import org.ex.dto.sub.HasManyDTO;
+
+public class MyDomainDTO implements grails.plugins.dto.DTO {
+    private static final long serialVersionUID = 1L;
+
+    private long id;
+    private String name;
+    private int age;
+    private OtherDomainDTO theOther;
+    private List<HasManyDTO> items;
+
+    public long getId() { return id; }
+    public void setId(long id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public int getAge() { return age; }
+    public void setAge(int age) { this.age = age; }
+    public OtherDomainDTO getTheOther() { return theOther; }
+    public void setTheOther(OtherDomainDTO theOther) { this.theOther = theOther; }
+    public List<HasManyDTO> getItems() { return items; }
+    public void setItems(List<HasManyDTO> items) { this.items = items; }
+}
+""", myDomainDtoFile.text
+
+            assertEquals """\
+package org.ex.dto;
+
+import org.example.SomeType;
+
+public class OtherDomainDTO implements grails.plugins.dto.DTO {
+    private static final long serialVersionUID = 1L;
+
+    private Long id;
+    private SomeType type;
+    private MyDomainDTO owner;
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public SomeType getType() { return type; }
+    public void setType(SomeType type) { this.type = type; }
+    public MyDomainDTO getOwner() { return owner; }
+    public void setOwner(MyDomainDTO owner) { this.owner = owner; }
+}
+""", otherDomainDtoFile.text
+
+            assertEquals """\
+package org.ex.dto.sub;
+
+import java.math.BigDecimal;
+
+public class HasManyDTO implements grails.plugins.dto.DTO {
+    private static final long serialVersionUID = 1L;
+
+    private String uniqueName;
+    private Integer number;
+    private BigDecimal amount;
+    private String stuff;
+
+    public String getUniqueName() { return uniqueName; }
+    public void setUniqueName(String uniqueName) { this.uniqueName = uniqueName; }
+    public Integer getNumber() { return number; }
+    public void setNumber(Integer number) { this.number = number; }
+    public BigDecimal getAmount() { return amount; }
+    public void setAmount(BigDecimal amount) { this.amount = amount; }
+    public String getStuff() { return stuff; }
+    public void setStuff(String stuff) { this.stuff = stuff; }
+}
+""", hasManyDtoFile.text
         }
     }
 }

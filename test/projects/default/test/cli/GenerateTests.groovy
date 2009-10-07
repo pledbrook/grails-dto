@@ -247,4 +247,126 @@ class GenerateTests extends AbstractCliTestCase {
         assertFalse "Page DTO exists, but it shouldn't.", pageDto.exists()
         assertFalse "WikiContent DTO exists, but it shouldn't.", wikiDto.exists()
     }
+
+    /**
+     * Tests that the DTOs are all created in the package provided as
+     * a command argument.
+     */
+    void testGenerateWithExplicitPackage() {
+        execute([ "generate-dto", "--all", "--pkg=org.another.gwt.client" ])
+        enterInput("y")
+
+        assertEquals 0, waitForProcess()
+        verifyHeader()
+
+        // Make sure that the script was found.
+        assertFalse "GenerateDto script not found.", output.contains("Script not found:")
+
+        // Check that the expected DTO files exist.
+        def postDto = new File(srcDir, "org/another/gwt/client/PostDTO.java")
+        def catDto = new File(srcDir, "org/another/gwt/client/CategoryDTO.java")
+        def userDto = new File(srcDir, "org/another/gwt/client/SecUserDTO.java")
+        def roleDto = new File(srcDir, "org/another/gwt/client/SecRoleDTO.java")
+        def pageDto = new File(srcDir, "org/another/gwt/client/PageDTO.java")
+        def wikiDto = new File(srcDir, "org/another/gwt/client/WikiContentDTO.java")
+
+        assertTrue "Post DTO does not exist.", postDto.exists()
+        assertTrue "Category DTO does not exist.", catDto.exists()
+        assertTrue "SecUser DTO does not exist.", userDto.exists()
+        assertTrue "SecRole DTO does not exist.", roleDto.exists()
+        assertTrue "Page DTO does not exist.", pageDto.exists()
+        assertTrue "WikiContent DTO does not exist.", wikiDto.exists()
+
+        assertTrue "Post DTO declares the wrong package.", postDto.text.startsWith("package org.another.gwt.client;")
+        assertTrue "Category DTO declares the wrong package.", catDto.text.startsWith("package org.another.gwt.client;")
+        assertTrue "SecUser DTO declares the wrong package.", userDto.text.startsWith("package org.another.gwt.client;")
+        assertTrue "SecRole DTO declares the wrong package.", roleDto.text.startsWith("package org.another.gwt.client;")
+        assertTrue "Page DTO declares the wrong package.", pageDto.text.startsWith("package org.another.gwt.client;")
+        assertTrue "WikiContent DTO declares the wrong package.", wikiDto.text.startsWith("package org.another.gwt.client;")
+    }
+
+    /**
+     * Tests that package replacement works correctly. Any part of a
+     * domain class's package that matches the specified old package
+     * should be replaced by the new package. Any parts of the package
+     * that don't match are retained appended to the new package.
+     */
+    void testGenerateWithExplicitPackageMapping() {
+        execute([ "generate-dto", "--all", "--oldpkg=org.example", "--newpkg=org.another.gwt.client" ])
+        enterInput("y")
+
+        assertEquals 0, waitForProcess()
+        verifyHeader()
+
+        // Make sure that the script was found.
+        assertFalse "GenerateDto script not found.", output.contains("Script not found:")
+
+        // Check that the expected DTO files exist.
+        def postDto = new File(srcDir, "org/another/gwt/client/PostDTO.java")
+        def catDto = new File(srcDir, "org/another/gwt/client/CategoryDTO.java")
+        def userDto = new File(srcDir, "org/another/gwt/client/security/SecUserDTO.java")
+        def roleDto = new File(srcDir, "org/another/gwt/client/security/SecRoleDTO.java")
+        def pageDto = new File(srcDir, "org/another/gwt/client/PageDTO.java")
+        def wikiDto = new File(srcDir, "org/another/gwt/client/WikiContentDTO.java")
+
+        assertTrue "Post DTO does not exist.", postDto.exists()
+        assertTrue "Category DTO does not exist.", catDto.exists()
+        assertTrue "SecUser DTO does not exist.", userDto.exists()
+        assertTrue "SecRole DTO does not exist.", roleDto.exists()
+        assertTrue "Page DTO does not exist.", pageDto.exists()
+        assertTrue "WikiContent DTO does not exist.", wikiDto.exists()
+
+        assertTrue "Post DTO declares the wrong package.", postDto.text.startsWith("package org.another.gwt.client;")
+        assertTrue "Category DTO declares the wrong package.", catDto.text.startsWith("package org.another.gwt.client;")
+        assertTrue "SecUser DTO declares the wrong package.", userDto.text.startsWith("package org.another.gwt.client.security;")
+        assertTrue "SecRole DTO declares the wrong package.", roleDto.text.startsWith("package org.another.gwt.client.security;")
+        assertTrue "Page DTO declares the wrong package.", pageDto.text.startsWith("package org.another.gwt.client;")
+        assertTrue "WikiContent DTO declares the wrong package.", wikiDto.text.startsWith("package org.another.gwt.client;")
+    }
+
+    /**
+     * Tests that the generate-dto command prints an error message if
+     * <tt>--pkg</tt> is used with <tt>--oldpkg</tt>. 
+     */
+    void testGenerateWithConflictingPkgArgsOld() {
+        execute([ "generate-dto", "--all", "--oldpkg=org.example", "--pkg=org.another.gwt.client" ])
+
+        assertEquals 1, waitForProcess()
+        verifyHeader()
+
+        // Make sure that the script was found.
+        assertFalse "GenerateDto script not found.", output.contains("Script not found:")
+        assertTrue "Conflicting args error message missing.", output.contains("You cannot use --pkg with either --oldpkg or --newpkg")
+    }
+
+    /**
+     * Tests that the generate-dto command prints an error message if
+     * <tt>--pkg</tt> is used with either <tt>--newpkg</tt>.
+     */
+    void testGenerateWithConflictingPkgArgsNew() {
+        execute([ "generate-dto", "--all", "--pkg=org.example", "--newpkg=org.another.gwt.client" ])
+
+        assertEquals 1, waitForProcess()
+        verifyHeader()
+
+        // Make sure that the script was found.
+        assertFalse "GenerateDto script not found.", output.contains("Script not found:")
+        assertTrue "Conflicting args error message missing.", output.contains("You cannot use --pkg with either --oldpkg or --newpkg")
+    }
+
+    /**
+     * Tests that the generate-dto command prints an error message if
+     * either <tt>--oldpkg</tt> or <tt>--newpkg</tt> are specified
+     * without the other.
+     */
+    void testGenerateWithMissingPkgArg() {
+        execute([ "generate-dto", "--all", "--oldpkg=org.example" ])
+
+        assertEquals 1, waitForProcess()
+        verifyHeader()
+
+        // Make sure that the script was found.
+        assertFalse "GenerateDto script not found.", output.contains("Script not found:")
+        assertTrue "Missing --newpkg arg error message.", output.contains("You must specify both --oldpkg and --newpkg, not just one of them")
+    }
 }

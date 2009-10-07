@@ -7,6 +7,8 @@ class DefaultGrailsDtoGenerator {
 
     private processed
 
+    Map packageTransforms = [:]
+
     DefaultGrailsDtoGenerator() {
         this(true)
     }
@@ -22,8 +24,34 @@ class DefaultGrailsDtoGenerator {
     }
 
     Set generateNoRecurse(GrailsDomainClass dc, Writer writer) {
-        def dcPkg = dc.clazz.package.name
+        final dcPkg = dc.clazz.package?.name
+        return generateNoRecurseInternal(dc, writer, getTargetPackage(dcPkg))
+    }
 
+    private void generateInternal(GrailsDomainClass dc, File rootDir, boolean recursive) {
+        final targetPkg = getTargetPackage(dc.clazz.package?.name)
+        def dtoFile = getDtoFile(rootDir, dc, targetPkg)
+        dtoFile.parentFile.mkdirs()
+
+        def writer = new BufferedWriter(new FileWriter(dtoFile))
+        try {
+            def relations = generateNoRecurseInternal(dc, writer, targetPkg)
+            processed << dc.clazz
+
+            if (recursive && relations) {
+                relations.each { rel ->
+                    if (!processed.contains(rel.clazz)) {
+                        generateInternal(rel, rootDir, true)
+                    }
+                }
+            }
+        }
+        finally {
+            if (writer) writer.close()
+        }
+    }
+
+    private Set generateNoRecurseInternal(GrailsDomainClass dc, Writer writer, String targetPkg) {
         // Deal with the persistent properties.
         def imports = []
         def fields = []
@@ -34,12 +62,12 @@ class DefaultGrailsDtoGenerator {
 
             if (prop.referencedPropertyType == propType) {
                 field["typeString"] = propType.simpleName + (prop.association ? "DTO" : "")
-                addImportIfNecessary(imports, dcPkg, propType, prop.association)
+                addImportIfNecessary(imports, targetPkg, propType, prop.association)
             }
             else {
                 field["typeString"] = propType.simpleName + '<' + prop.referencedPropertyType.simpleName + (prop.association ? "DTO" : "") + '>'
-                addImportIfNecessary(imports, dcPkg, propType, false)
-                addImportIfNecessary(imports, dcPkg, prop.referencedPropertyType, prop.association)
+                addImportIfNecessary(imports, targetPkg, propType, false)
+                addImportIfNecessary(imports, targetPkg, prop.referencedPropertyType, prop.association)
             }
 
             // Store the reference domain class if this property is
@@ -54,7 +82,7 @@ class DefaultGrailsDtoGenerator {
         dc.persistentProperties.each(processProperty)
 
         // Start with the package line.
-        writer.write "package ${dcPkg};${eol}${eol}"
+        writer.write "package ${targetPkg};${eol}${eol}"
 
         // Now add any required imports.
         if (imports) {
@@ -96,37 +124,35 @@ class DefaultGrailsDtoGenerator {
         return relations
     }
 
-    private void generateInternal(GrailsDomainClass dc, File rootDir, boolean recursive) {
-        def dtoFile = getDtoFile(rootDir, dc)
-        dtoFile.parentFile.mkdirs()
+    protected void addImportIfNecessary(List imports, String hostPackage, Class clazz, boolean isAssociation) {
+        def pkg = isAssociation ? getTargetPackage(clazz.package?.name) : clazz.package?.name
+        if (pkg && pkg != hostPackage && pkg != "java.lang") {
+            imports << "${pkg}.${clazz.simpleName}${isAssociation ? 'DTO' : ''}"
+        }
+    }
 
-        def writer = new BufferedWriter(new FileWriter(dtoFile))
-        try {
-            def relations = generateNoRecurse(dc, writer)
-            processed << dc.clazz
+    protected File getDtoFile(File rootDir, GrailsDomainClass dc, String targetPkg) {
+        def pkgPath = targetPkg.replace(".", "/")
+        return new File(rootDir, "${pkgPath}/${dc.shortName}DTO.java")
+    }
 
-            if (recursive && relations) {
-                relations.each { rel ->
-                    if (!processed.contains(rel.clazz)) {
-                        generateInternal(rel, rootDir, true)
-                    }
-                }
+    protected String getTargetPackage(final String dcPkg) {
+        def targetPkg = dcPkg
+        if (packageTransforms) {
+            // Find a transform that matches the domain class package.
+            def entry = packageTransforms.find { key, val -> dcPkg?.startsWith(key) }
+            if (entry) {
+                // Found one, so use the associated package name as the
+                // target package.
+                targetPkg = dcPkg.replace(entry.key, entry.value)
+            }
+            else if (packageTransforms["*"]) {
+                // Didn't find a matching transform, but did find the
+                // wildcard one.
+                targetPkg = packageTransforms["*"]
             }
         }
-        finally {
-            if (writer) writer.close()
-        }
-    }
 
-    protected void addImportIfNecessary(List imports, String hostPackage, Class clazz, boolean isAssociation) {
-        def pkg = clazz.package?.name
-        if (pkg && pkg != hostPackage && pkg != "java.lang") {
-            imports << (isAssociation ? clazz.name + "DTO" : clazz.name)
-        }
-    }
-
-    protected File getDtoFile(File rootDir, GrailsDomainClass dc) {
-        def pkgPath = dc.clazz.package.name.replace(".", "/")
-        return new File(rootDir, "${pkgPath}/${dc.shortName}DTO.java")
+        return targetPkg
     }
 }
