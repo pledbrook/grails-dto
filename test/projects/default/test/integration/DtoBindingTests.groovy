@@ -32,11 +32,11 @@ class DtoBindingTests extends GrailsUnitTestCase {
         dilbert.id = "dilbert"
         dilbert.addToRoles(userRole)
 
-        def firstPost = new Post(content: "First post!", priority: 1)
-        def secondPost = new Post(content: "Second post!", priority: 10)
-        def thirdPost = new Post(content: "Third post!", priority: 5)
-        def fourthPost = new Post(content: "Fourth post!", priority: 5)
-        def fifthPost = new Post(content: "Fifth post!", priority: 8)
+        def firstPost = new Post(content: "First post!", priority: 1, type: PostType.PG)
+        def secondPost = new Post(content: "Second post!", priority: 10, type: PostType.X)
+        def thirdPost = new Post(content: "Third post!", priority: 5, type: PostType.R)
+        def fourthPost = new Post(content: "Fourth post!", priority: 5, type: PostType.PG)
+        def fifthPost = new Post(content: "Fifth post!", priority: 8, type: PostType.R)
         dilbert.addToPosts(firstPost)
         dilbert.addToPosts(secondPost)
         dilbert.addToPosts(thirdPost)
@@ -105,6 +105,7 @@ class DtoBindingTests extends GrailsUnitTestCase {
             assertEquals dcPost.id, dtoPost.id
             assertEquals dcPost.content, dtoPost.content
             assertEquals dcPost.priority, dtoPost.priority
+            assertEquals dcPost.type, dtoPost.type
             
             if (dcPost.category) {
                 assertEquals dcPost.category.id, dtoPost.category.id

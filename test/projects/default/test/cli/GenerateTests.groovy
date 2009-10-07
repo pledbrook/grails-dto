@@ -6,7 +6,7 @@ import org.apache.commons.codec.digest.DigestUtils
  * plugin.
  */
 class GenerateTests extends AbstractCliTestCase {
-    private static final String POST_MD5 = "a8cba6ed59856a1e2454077a366de1f7"
+    private static final String POST_MD5 = "ce156d3486f58b06f34d6afa2b586eb9"
     private static final String CATEGORY_MD5 = "3a1e6f0b0969e1e43fccaa8e67811384"
     private static final String SEC_USER_MD5 = "62bd80e9500ac4c304eca89a99a894d7"
     private static final String SEC_ROLE_MD5 = "f69121ac99527917209667e464953db4"

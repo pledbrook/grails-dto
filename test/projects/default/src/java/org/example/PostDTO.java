@@ -9,6 +9,7 @@ public class PostDTO implements grails.plugins.dto.DTO {
     private String content;
     private CategoryDTO category;
     private int priority;
+    private PostType type;
     private SecUserDTO user;
 
     public Long getId() { return id; }
@@ -19,6 +20,8 @@ public class PostDTO implements grails.plugins.dto.DTO {
     public void setCategory(CategoryDTO category) { this.category = category; }
     public int getPriority() { return priority; }
     public void setPriority(int priority) { this.priority = priority; }
+    public PostType getType() { return type; }
+    public void setType(PostType type) { this.type = type; }
     public SecUserDTO getUser() { return user; }
     public void setUser(SecUserDTO user) { this.user = user; }
 }
