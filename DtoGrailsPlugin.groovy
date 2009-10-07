@@ -2,6 +2,7 @@ import grails.plugins.dto.DTO
 
 import org.codehaus.groovy.grails.plugins.dto.DefaultGrailsDtoGenerator
 import org.dozer.spring.DozerBeanMapperFactoryBean
+import org.springframework.context.ApplicationContext
 
 class DtoGrailsPlugin {
     // the plugin version
@@ -39,12 +40,8 @@ map domain class instances to DTO instances.
     def doWithDynamicMethods = { final ctx ->
         // Add "as DTO" and toDTO() to domain classes.
         for (dc in application.domainClasses) {
-            addDtoMethods(dc.metaClass)
+            addDtoMethods(dc.metaClass, ctx)
         }
-
-        // Also add them to Collection and Map.
-        addDtoMethods(Collection.metaClass)
-        addDtoMethods(Map.metaClass)
     }
 
     def doWithApplicationContext = { final ctx ->
@@ -61,7 +58,7 @@ map domain class instances to DTO instances.
         // The event is the same as for 'onChange'.
     }
 
-    private addDtoMethods(MetaClass mc) {
+    private addDtoMethods(final MetaClass mc, final ApplicationContext ctx) {
         // First add the "as DTO".
         final originalAsType = mc.getMetaMethod("asType", [ Class ] as Object[])
         mc.asType = { Class clazz ->
