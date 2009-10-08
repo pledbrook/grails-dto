@@ -16,6 +16,12 @@ where
 
 target(default: "Generates DTO classes for one or more domain classes.") {
     depends(parseArguments, bootstrap)
+    
+    // Check that the "dto.package.transforms" setting is the correct type.
+    if (!buildConfig.dto.package.transform instanceof Map) {
+        println "The 'dto.package.transform' build setting must be a map."
+        exit(1)
+    }
 
     // Check the arguments.
     def replacePackage = "*"
@@ -79,6 +85,9 @@ target(default: "Generates DTO classes for one or more domain classes.") {
     // transformations.
     if (targetPackage) {
         generator.packageTransforms = [ (replacePackage): targetPackage ]
+    }
+    else if (buildConfig.dto.package.transforms) {
+        generator.packageTransforms = buildConfig.dto.package.transforms
     }
 
     // Use the generator on each of the specified domain classes.
