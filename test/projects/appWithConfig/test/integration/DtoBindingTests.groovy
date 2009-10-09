@@ -4,10 +4,12 @@ import grails.test.*
 
 import org.example.*
 import org.example.security.*
+import org.ex.client.dto.security.SecUserDTO
 
 /**
- * Test case for the dynamic "as DTO" and "toDTO()" methods provided
- * by the DTO plugin.
+ * Test case for the dynamic "toDTO()" method that takes an argument.
+ * This is for cases where the DTO package does not match that of the
+ * corresponding domain class.
  */
 class DtoBindingTests extends GrailsUnitTestCase {
     protected void setUp() {
@@ -61,29 +63,33 @@ class DtoBindingTests extends GrailsUnitTestCase {
     }
 
     /**
-     * Tests that "as DTO" works on domain instances.
+     * Tests that toDTO() works when given a DTO class as an argument.
      */
-    void testAsDTO() {
+    void testUserDomain() {
         // First get hold of a user domain instance.
         def dilbert = SecUser.findById("dilbert")
         assertNotNull dilbert
 
         // Next, convert it to a DTO and check that the values in the
         // tree of DTOs match those in the corresponding domain instances.
-        compareUserDomainAndDTO dilbert, dilbert as DTO
+        compareUserDomainAndDTO dilbert, dilbert.toDTO(SecUserDTO)
     }
 
     /**
-     * Tests that the toDTO() method works on domain instances.
+     * Tests that toDTO(Class) works on collections.
      */
-    void testToDTO() {
-        // First get hold of a user domain instance.
-        def dilbert = SecUser.findById("dilbert")
-        assertNotNull dilbert
+    void testCollection() {
+        def users = SecUser.list()
+        assertEquals 2, users.size()
 
-        // Next, convert it to a DTO and check that the values in the
-        // tree of DTOs match those in the corresponding domain instances.
-        compareUserDomainAndDTO dilbert, dilbert.toDTO()
+        // Convert the list to a list of DTOs.
+        def dtos = users.toDTO(SecUserDTO)
+        assertEquals 2, dtos.size()
+        assertNotNull "First DTO element is null", dtos[0]
+        assertNotNull "Second DTO element is null", dtos[1]
+
+        compareUserDomainAndDTO users[0], dtos[0]
+        compareUserDomainAndDTO users[1], dtos[1]
     }
 
     /**
@@ -97,8 +103,16 @@ class DtoBindingTests extends GrailsUnitTestCase {
         assertEquals domainObj.dateOfBirth, dtoObj.dateOfBirth
 
         // The user fields are all OK, so now recurse into the relations.
-        assertEquals domainObj.posts.size(), dtoObj.posts.size()
-        for (int i in 0..<domainObj.posts.size()) {
+        def numPosts = 0
+        if (domainObj.posts == null) {
+            assertNull "DTO user posts should be null.", dtoObj.posts
+        }
+        else {
+            numPosts = domainObj.posts.size()
+            assertEquals numPosts, dtoObj.posts.size()
+        }
+
+        for (int i in 0..<numPosts) {
             def dcPost = domainObj.posts[i]
             def dtoPost = dtoObj.posts[i]
             assertEquals dcPost.id, dtoPost.id
@@ -109,12 +123,12 @@ class DtoBindingTests extends GrailsUnitTestCase {
             if (dcPost.category) {
                 assertEquals dcPost.category.id, dtoPost.category.id
                 assertEquals dcPost.category.name, dtoPost.category.name
-                assertEquals dcPost.category.posts.size(), dtoPost.category.posts.size()
+                assertEquals dcPost.category.posts?.size(), dtoPost.category.posts?.size()
             }
             assertEquals dcPost.user.id, dtoPost.user.id
         }
 
-        assertEquals domainObj.roles.size(), dtoObj.roles.size()
+        assertEquals domainObj.roles?.size(), dtoObj.roles?.size()
         domainObj.roles.each { final dcRole ->
             // Check that the user DTO has a role DTO matching this role.
             assertTrue "No role DTO found matching the domain instance.", dtoObj.roles.any {

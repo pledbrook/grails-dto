@@ -42,6 +42,29 @@ map domain class instances to DTO instances.
         for (dc in application.domainClasses) {
             addDtoMethods(dc.metaClass, ctx)
         }
+
+        // Add the toDTO(Class) method to collections.
+        Collection.metaClass.toDTO = { obj ->
+            // Find out what class the target collection should contain.
+            def containedClass = obj instanceof Class ? obj : obj.getClass()
+
+            // Next create a collection of the appropriate type.
+            def clazz = delegate.getClass()
+            if (SortedSet.isAssignableFrom(clazz)) {
+                obj = new TreeSet()
+            }
+            else if (Set.isAssignableFrom(clazz)) {
+                obj = new HashSet()
+            }
+            else {
+                obj = new ArrayList(delegate.size())
+            }
+
+            // Finally, add the individual DTOs to the new collection.
+            final mapper = ctx.getBean("dozerMapper")
+            delegate.each { obj << mapper.map(it, containedClass) }
+            return obj
+        }
     }
 
     def doWithApplicationContext = { final ctx ->
@@ -75,6 +98,12 @@ map domain class instances to DTO instances.
         // Then the toDTO() method.
         mc.toDTO = {->
             return mapDomainInstance(ctx, delegate)
+        }
+
+        mc.toDTO = { Class clazz ->
+            // Convert the domain instance to a DTO.
+            def mapper = ctx.getBean("dozerMapper")
+            return mapper.map(delegate, clazz)
         }
     }
 
