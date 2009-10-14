@@ -34,7 +34,11 @@ map domain class instances to DTO instances.
 
     def doWithSpring = {
         dtoGenerator(DefaultGrailsDtoGenerator)
-        dozerMapper(DozerBeanMapperFactoryBean)
+        dozerMapper(DozerBeanMapperFactoryBean) {
+            if (application.config.dto.mapping.files) {
+                mappingFiles = application.config.dto.mapping.files
+            }
+        }
     }
 
     def doWithDynamicMethods = { final ctx ->
