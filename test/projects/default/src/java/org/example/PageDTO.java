@@ -13,4 +13,14 @@ public class PageDTO implements grails.plugins.dto.DTO {
     public void setContent(WikiContentDTO content) { this.content = content; }
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("PageDTO[");
+        sb.append("\n\tid: " + this.id);
+        sb.append("\n\tcontent: " + this.content);
+        sb.append("\n\ttitle: " + this.title);
+        sb.append("]");
+        return sb.toString();
+    }
 }

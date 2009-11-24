@@ -6,25 +6,38 @@ import java.util.Set;
 import org.ex.client.dto.PostDTO;
 
 public class SecUserDTO implements grails.plugins.dto.DTO {
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    private String id;
-    private Date dateOfBirth;
-    private String email;
-    private Set<SecRoleDTO> roles;
-    private List<PostDTO> posts;
-    private String fullName;
+	private String id;
+	private Date dateOfBirth;
+	private String email;
+	private Set<SecRoleDTO> roles;
+	private List<PostDTO> posts;
+	private String fullName;
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
-    public Date getDateOfBirth() { return dateOfBirth; }
-    public void setDateOfBirth(Date dateOfBirth) { this.dateOfBirth = dateOfBirth; }
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-    public Set<SecRoleDTO> getRoles() { return roles; }
-    public void setRoles(Set<SecRoleDTO> roles) { this.roles = roles; }
-    public List<PostDTO> getPosts() { return posts; }
-    public void setPosts(List<PostDTO> posts) { this.posts = posts; }
-    public String getFullName() { return fullName; }
-    public void setFullName(String fullName) { this.fullName = fullName; }
+	public String getId() { return id; }
+	public void setId(String id) { this.id = id; }
+	public Date getDateOfBirth() { return dateOfBirth; }
+	public void setDateOfBirth(Date dateOfBirth) { this.dateOfBirth = dateOfBirth; }
+	public String getEmail() { return email; }
+	public void setEmail(String email) { this.email = email; }
+	public Set<SecRoleDTO> getRoles() { return roles; }
+	public void setRoles(Set<SecRoleDTO> roles) { this.roles = roles; }
+	public List<PostDTO> getPosts() { return posts; }
+	public void setPosts(List<PostDTO> posts) { this.posts = posts; }
+	public String getFullName() { return fullName; }
+	public void setFullName(String fullName) { this.fullName = fullName; }
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("SecUserDTO[");
+		sb.append("\n\tid: " + this.id);
+		sb.append("\n\tdateOfBirth: " + this.dateOfBirth);
+		sb.append("\n\temail: " + this.email);
+		sb.append("\n\troles: " + this.roles);
+		sb.append("\n\tposts: " + this.posts);
+		sb.append("\n\tfullName: " + this.fullName);
+		sb.append("]");
+		return sb.toString();
+	}
 }

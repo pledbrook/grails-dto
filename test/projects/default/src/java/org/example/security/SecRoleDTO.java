@@ -15,4 +15,14 @@ public class SecRoleDTO implements grails.plugins.dto.DTO {
     public void setUsers(Set<SecUserDTO> users) { this.users = users; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("SecRoleDTO[");
+        sb.append("\n\tid: " + this.id);
+        sb.append("\n\tusers: " + this.users);
+        sb.append("\n\tname: " + this.name);
+        sb.append("]");
+        return sb.toString();
+    }
 }

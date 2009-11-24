@@ -274,6 +274,66 @@ public class MyDomainDTO implements grails.plugins.dto.DTO {
         }
     }
 
+    void testGenerateNoRecurseCustomIndent() {
+        def testProperties = [
+            [ name: "name", association: false, type: String, referencedPropertyType: String ],
+            [ name: "age", association: false, type: int, referencedPropertyType: int ],
+            [ name: "theOther", association: true, type: org.example.OtherDomain, referencedPropertyType: org.example.OtherDomain ],
+            [ name: "items", association: true, type: List, referencedPropertyType: org.example.sub.HasMany ]
+        ]
+        def mockDomainClass = mock(GrailsDomainClass)
+        mockDomainClass.clazz.returns([ package: [ name: "org.example" ] ])
+        mockDomainClass.shortName.returns("MyDomain").stub()
+        mockDomainClass.identifier.returns([ name: "id", association: false, type: long, referencedPropertyType: long ]).stub()
+        mockDomainClass.persistentProperties.returns(testProperties).stub()
+        
+        play {
+            def writer = new StringWriter()
+            def generator = new DefaultGrailsDtoGenerator(false, "\t")
+            generator.generateNoRecurse(mockDomainClass, writer)
+            
+            assertEquals "Generated source does not match what was expected.", """\
+package org.example;
+
+import java.util.List;
+import org.example.sub.HasManyDTO;
+
+public class MyDomainDTO implements grails.plugins.dto.DTO {
+\tprivate static final long serialVersionUID = 1L;
+
+\tprivate long id;
+\tprivate String name;
+\tprivate int age;
+\tprivate OtherDomainDTO theOther;
+\tprivate List<HasManyDTO> items;
+
+\tpublic long getId() { return id; }
+\tpublic void setId(long id) { this.id = id; }
+\tpublic String getName() { return name; }
+\tpublic void setName(String name) { this.name = name; }
+\tpublic int getAge() { return age; }
+\tpublic void setAge(int age) { this.age = age; }
+\tpublic OtherDomainDTO getTheOther() { return theOther; }
+\tpublic void setTheOther(OtherDomainDTO theOther) { this.theOther = theOther; }
+\tpublic List<HasManyDTO> getItems() { return items; }
+\tpublic void setItems(List<HasManyDTO> items) { this.items = items; }
+
+\tpublic String toString() {
+\t\tStringBuilder sb = new StringBuilder();
+\t\tsb.append("MyDomainDTO[");
+\t\tsb.append("\\n\\tid: " + this.id);
+\t\tsb.append("\\n\\tname: " + this.name);
+\t\tsb.append("\\n\\tage: " + this.age);
+\t\tsb.append("\\n\\ttheOther: " + this.theOther);
+\t\tsb.append("\\n\\titems: " + this.items);
+\t\tsb.append("]");
+\t\treturn sb.toString();
+\t}
+}
+""", writer.toString()
+        }
+    }
+
     void testGenerateWithWildcardPackageTransform() {
         def outDir = new File("tmp/src/java")
         outDir.deleteDir()

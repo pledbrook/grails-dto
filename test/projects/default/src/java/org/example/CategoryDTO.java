@@ -15,4 +15,14 @@ public class CategoryDTO implements grails.plugins.dto.DTO {
     public void setName(String name) { this.name = name; }
     public Set<PostDTO> getPosts() { return posts; }
     public void setPosts(Set<PostDTO> posts) { this.posts = posts; }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("CategoryDTO[");
+        sb.append("\n\tid: " + this.id);
+        sb.append("\n\tname: " + this.name);
+        sb.append("\n\tposts: " + this.posts);
+        sb.append("]");
+        return sb.toString();
+    }
 }

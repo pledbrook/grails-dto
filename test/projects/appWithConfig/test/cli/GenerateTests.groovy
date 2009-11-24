@@ -6,13 +6,13 @@ import org.apache.commons.codec.digest.DigestUtils
  * plugin.
  */
 class GenerateTests extends AbstractCliTestCase {
-    private static final String POST_MD5 = "ee5d188ed6179882445651b84c2ec87a"
-    private static final String CATEGORY_MD5 = "ed02c1fd85cbaa49dfc361d8e12e7a6d"
-    private static final String SEC_USER_MD5 = "495f0a49c554605bc5f7558f3519a141"
-    private static final String SEC_ROLE_MD5 = "befe55e87632a8f9b097a47ee53a8228"
-    private static final String PAGE_MD5 = "3d96f87c04937b4f5e03cac0f23f1973"
-    private static final String WIKI_CONTENT_MD5 = "afa89854ca7cc199d39709e8b417adcc"
-    private static final String ATTR_CONTENT_MD5 = "959b545e656cfcdd24ea71384e4c9afb"
+    private static final String POST_MD5 = "0739eca700015a3d0e6ebb9e3a95e89e"
+    private static final String CATEGORY_MD5 = "15155579a345fa87af83ee90e6ded95c"
+    private static final String SEC_USER_MD5 = "9a90e08907b63059362cf8a54cd9bad3"
+    private static final String SEC_ROLE_MD5 = "99ebf95dbe51b7695ea08ad9ae2fca9f"
+    private static final String PAGE_MD5 = "6ba46a5f7a1e2ed3a3c41e9ac700fc1a"
+    private static final String WIKI_CONTENT_MD5 = "0d6efe218d4a663911fa7425424760f5"
+    private static final String ATTR_CONTENT_MD5 = "583e7a10a917df5c520cb33c3b0bb658"
 
     private final File srcDir = new File("src/java")
     private final File postDto = new File(srcDir, "org/ex/client/dto/PostDTO.java")

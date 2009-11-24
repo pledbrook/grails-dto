@@ -27,4 +27,17 @@ public class SecUserDTO implements grails.plugins.dto.DTO {
     public void setPosts(List<PostDTO> posts) { this.posts = posts; }
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("SecUserDTO[");
+        sb.append("\n\tid: " + this.id);
+        sb.append("\n\tdateOfBirth: " + this.dateOfBirth);
+        sb.append("\n\temail: " + this.email);
+        sb.append("\n\troles: " + this.roles);
+        sb.append("\n\tposts: " + this.posts);
+        sb.append("\n\tfullName: " + this.fullName);
+        sb.append("]");
+        return sb.toString();
+    }
 }

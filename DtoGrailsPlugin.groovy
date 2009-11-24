@@ -33,7 +33,14 @@ map domain class instances to DTO instances.
     def documentation = "http://grails.org/plugin/dto"
 
     def doWithSpring = {
-        dtoGenerator(DefaultGrailsDtoGenerator)
+        // Create the DTO generator bean.
+        if (application.config.grails.generate.indent) {
+            dtoGenerator(DefaultGrailsDtoGenerator, true, application.config.grails.generate.indent)
+        }
+        else {
+            dtoGenerator(DefaultGrailsDtoGenerator)
+        }
+
         dozerMapper(DozerBeanMapperFactoryBean) {
             if (application.config.dto.mapping.files) {
                 mappingFiles = application.config.dto.mapping.files

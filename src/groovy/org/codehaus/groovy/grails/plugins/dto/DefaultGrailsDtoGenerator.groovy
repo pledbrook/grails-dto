@@ -12,27 +12,25 @@ import org.codehaus.groovy.grails.commons.GrailsDomainClass
  */
 class DefaultGrailsDtoGenerator {
     private final String eol
+    private final String indent
 
     private processed
 
     Map packageTransforms = [:]
 
     /**
-     * Creates a generator that writes out native, i.e. platform-dependent,
-     * line endings.
-     */
-    DefaultGrailsDtoGenerator() {
-        this(true)
-    }
-
-    /**
      * Creates a generator.
      * @param useNativeEol The generator creates files with native line
      * endings if this is <code>true</code>, otherwise it uses '\n'.
+     * Default value is <code>true</code>.
+     * @param indent The string to use for indenting. Defaults to 4
+     * spaces.
      */
-    DefaultGrailsDtoGenerator(boolean useNativeEol) {
+    DefaultGrailsDtoGenerator(boolean useNativeEol = true, String indent = "    ") {
         if (useNativeEol) eol = System.getProperty("line.separator")
         else eol = "\n"
+
+        this.indent = indent
     }
 
     /**
@@ -131,11 +129,11 @@ class DefaultGrailsDtoGenerator {
         writer.write "public class ${dc.shortName}DTO implements grails.plugins.dto.DTO {${eol}"
         
         // A serialUID, since DTOs are serialisable.
-        writer.write "    private static final long serialVersionUID = 1L;${eol}${eol}"
+        writer.write "${indent}private static final long serialVersionUID = 1L;${eol}${eol}"
 
         // The private fields.
         fields.each { field ->
-            writer.write "    private ${field.typeString} ${field.name};${eol}"
+            writer.write "${indent}private ${field.typeString} ${field.name};${eol}"
         }
 
         // The getters and setters.
@@ -145,21 +143,21 @@ class DefaultGrailsDtoGenerator {
             propSuffix.setCharAt(0, Character.toUpperCase(propSuffix.charAt(0)))
             propSuffix = propSuffix.toString()
 
-            writer.write "    public ${field.typeString} get${propSuffix}() { return ${field.name}; }${eol}"
-            writer.write "    public void set${propSuffix}(${field.typeString} ${field.name}) { this.${field.name} = ${field.name}; }${eol}"
+            writer.write "${indent}public ${field.typeString} get${propSuffix}() { return ${field.name}; }${eol}"
+            writer.write "${indent}public void set${propSuffix}(${field.typeString} ${field.name}) { this.${field.name} = ${field.name}; }${eol}"
         }
 
         // toString()
         writer.write eol
-        writer.write "    public String toString() {${eol}"
-        writer.write "        StringBuilder sb = new StringBuilder();${eol}"
-        writer.write "        sb.append(\"${dc.shortName}DTO[\");${eol}"
+        writer.write "${indent}public String toString() {${eol}"
+        writer.write "${indent * 2}StringBuilder sb = new StringBuilder();${eol}"
+        writer.write "${indent * 2}sb.append(\"${dc.shortName}DTO[\");${eol}"
         fields.each { field ->
-            writer.write "        sb.append(\"\\n\\t${field.name}: \" + this.${field.name});${eol}"
+            writer.write "${indent * 2}sb.append(\"\\n\\t${field.name}: \" + this.${field.name});${eol}"
         }
-        writer.write "        sb.append(\"]\");${eol}"
-        writer.write "        return sb.toString();${eol}"
-        writer.write "    }${eol}"
+        writer.write "${indent * 2}sb.append(\"]\");${eol}"
+        writer.write "${indent * 2}return sb.toString();${eol}"
+        writer.write "${indent}}${eol}"
 
         // Class terminator.
         writer.write "}${eol}"
