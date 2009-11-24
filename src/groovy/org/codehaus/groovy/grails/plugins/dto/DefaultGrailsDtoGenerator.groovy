@@ -2,6 +2,14 @@ package org.codehaus.groovy.grails.plugins.dto
 
 import org.codehaus.groovy.grails.commons.GrailsDomainClass
 
+/**
+ * Default implementation of the DTO generator. It inspects the domain
+ * class descriptors and uses that information to write out the DTO
+ * files directly. You can specify whether the generated files have
+ * native line endings or simply '\n'.
+ *
+ * @author Peter Ledbrook
+ */
 class DefaultGrailsDtoGenerator {
     private final String eol
 
@@ -9,20 +17,47 @@ class DefaultGrailsDtoGenerator {
 
     Map packageTransforms = [:]
 
+    /**
+     * Creates a generator that writes out native, i.e. platform-dependent,
+     * line endings.
+     */
     DefaultGrailsDtoGenerator() {
         this(true)
     }
 
+    /**
+     * Creates a generator.
+     * @param useNativeEol The generator creates files with native line
+     * endings if this is <code>true</code>, otherwise it uses '\n'.
+     */
     DefaultGrailsDtoGenerator(boolean useNativeEol) {
         if (useNativeEol) eol = System.getProperty("line.separator")
         else eol = "\n"
     }
 
+    /**
+     * Generates the DTO files for the given domain class.
+     * @param dc The domain class to generate a DTO for.
+     * @param rootDir The root directory where the DTO files will be
+     * generated, e.g. "src/java". Package directories will be created
+     * within this directory as needed.
+     * @param recursive If <code>true</code>, the method will generate
+     * DTOs for all related domain classes too. Otherwise only the one
+     * DTO for 'dc' will be created.
+     */
     void generate(GrailsDomainClass dc, File rootDir, boolean recursive) {
         processed = [] as Set
         generateInternal(dc, rootDir, recursive)
     }
 
+    /**
+     * Generates the DTO file for the given domain class, without also
+     * generating DTOs for related domain classes. Rather than write
+     * the DTO to a file, this method will write it out to the given
+     * Writer.
+     * @param dc The domain class to generate a DTO for.
+     * @param writer The writer to use when generating the DTO class.
+     */
     Set generateNoRecurse(GrailsDomainClass dc, Writer writer) {
         final dcPkg = dc.clazz.package?.name
         return generateNoRecurseInternal(dc, writer, getTargetPackage(dcPkg))
