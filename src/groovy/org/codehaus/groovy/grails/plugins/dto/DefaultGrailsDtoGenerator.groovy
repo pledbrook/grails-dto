@@ -82,55 +82,52 @@ class DefaultGrailsDtoGenerator {
         dc.persistentProperties.each(processProperty)
 
         // Start with the package line.
-        def out = new PrintWriter(writer)
-        out.println "package ${targetPkg};"
-        out.println()
+        writer.write "package ${targetPkg};${eol}${eol}"
 
         // Now add any required imports.
         if (imports) {
             imports.unique().sort().each { str ->
-                out.println "import ${str};"
+                writer.write "import ${str};${eol}"
             }
-            out.println()
+            writer.write eol
         }
 
         // Next, the class declaration.
-        out.println "public class ${dc.shortName}DTO implements grails.plugins.dto.DTO {"
+        writer.write "public class ${dc.shortName}DTO implements grails.plugins.dto.DTO {${eol}"
         
         // A serialUID, since DTOs are serialisable.
-        out.println "    private static final long serialVersionUID = 1L;"
-        out.println()
+        writer.write "    private static final long serialVersionUID = 1L;${eol}${eol}"
 
         // The private fields.
         fields.each { field ->
-            out.println "    private ${field.typeString} ${field.name};"
+            writer.write "    private ${field.typeString} ${field.name};${eol}"
         }
 
         // The getters and setters.
-        out.println()
+        writer.write eol
         fields.each { field ->
             def propSuffix = new StringBuilder(field.name)
             propSuffix.setCharAt(0, Character.toUpperCase(propSuffix.charAt(0)))
             propSuffix = propSuffix.toString()
 
-            out.println "    public ${field.typeString} get${propSuffix}() { return ${field.name}; }"
-            out.println "    public void set${propSuffix}(${field.typeString} ${field.name}) { this.${field.name} = ${field.name}; }"
+            writer.write "    public ${field.typeString} get${propSuffix}() { return ${field.name}; }${eol}"
+            writer.write "    public void set${propSuffix}(${field.typeString} ${field.name}) { this.${field.name} = ${field.name}; }${eol}"
         }
 
         // toString()
-        out.println()
-        out.println "    public String toString() {"
-        out.println "        StringBuilder sb = new StringBuilder();"
-        out.println "        sb.append(\"${dc.shortName}DTO[\");"
+        writer.write eol
+        writer.write "    public String toString() {${eol}"
+        writer.write "        StringBuilder sb = new StringBuilder();${eol}"
+        writer.write "        sb.append(\"${dc.shortName}DTO[\");${eol}"
         fields.each { field ->
-            out.println "        sb.append(\"\\n\\t${field.name}: \" + this.${field.name});"
+            writer.write "        sb.append(\"\\n\\t${field.name}: \" + this.${field.name});${eol}"
         }
-        out.println "        sb.append(\"]\");"
-        out.println "        return sb.toString();"
-        out.println "    }"
+        writer.write "        sb.append(\"]\");${eol}"
+        writer.write "        return sb.toString();${eol}"
+        writer.write "    }${eol}"
 
         // Class terminator.
-        out.println "}"
+        writer.write "}${eol}"
 
         // All done. Make sure all data has been pushed to the destination
         // before we leave.
