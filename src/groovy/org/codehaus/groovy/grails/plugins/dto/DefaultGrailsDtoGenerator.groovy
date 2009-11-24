@@ -114,6 +114,18 @@ class DefaultGrailsDtoGenerator {
             writer.write "    public void set${propSuffix}(${field.typeString} ${field.name}) { this.${field.name} = ${field.name}; }${eol}"
         }
 
+		// toString()
+		writer.write “\n\t@Override”
+		writer.write “\n\tpublic String toString() {”
+		writer.write “\n\t\tStringBuilder sb = new StringBuilder();”
+		writer.write “\n\t\tsb.append(\”${dc.shortName}DTO[\");"
+		fields.each { field ->
+			writer.write """\n\t\tsb.append("\\n\\t${field.name}: " + this.${field.name});"""
+		}
+		writer.write "\n\t\tsb.append(\"]\”);”
+		writer.write “\n\t\treturn sb.toString();”
+		writer.write “\n\t}\n”
+
         // Class terminator.
         writer.write "}${eol}"
 
