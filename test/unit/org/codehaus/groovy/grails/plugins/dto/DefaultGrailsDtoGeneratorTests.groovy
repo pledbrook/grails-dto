@@ -133,6 +133,18 @@ public class MyDomainDTO implements grails.plugins.dto.DTO {
     public void setTheOther(OtherDomainDTO theOther) { this.theOther = theOther; }
     public List<HasManyDTO> getItems() { return items; }
     public void setItems(List<HasManyDTO> items) { this.items = items; }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("MyDomainDTO[");
+        sb.append("\\n\\tid: " + this.id);
+        sb.append("\\n\\tname: " + this.name);
+        sb.append("\\n\\tage: " + this.age);
+        sb.append("\\n\\ttheOther: " + this.theOther);
+        sb.append("\\n\\titems: " + this.items);
+        sb.append("]");
+        return sb.toString();
+    }
 }
 """, myDomainDtoFile.text
 
@@ -152,6 +164,16 @@ public class OtherDomainDTO implements grails.plugins.dto.DTO {
     public void setType(SomeType type) { this.type = type; }
     public MyDomainDTO getOwner() { return owner; }
     public void setOwner(MyDomainDTO owner) { this.owner = owner; }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("OtherDomainDTO[");
+        sb.append("\\n\\tid: " + this.id);
+        sb.append("\\n\\ttype: " + this.type);
+        sb.append("\\n\\towner: " + this.owner);
+        sb.append("]");
+        return sb.toString();
+    }
 }
 """, otherDomainDtoFile.text
 
@@ -176,6 +198,17 @@ public class HasManyDTO implements grails.plugins.dto.DTO {
     public void setAmount(BigDecimal amount) { this.amount = amount; }
     public String getStuff() { return stuff; }
     public void setStuff(String stuff) { this.stuff = stuff; }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("HasManyDTO[");
+        sb.append("\\n\\tuniqueName: " + this.uniqueName);
+        sb.append("\\n\\tnumber: " + this.number);
+        sb.append("\\n\\tamount: " + this.amount);
+        sb.append("\\n\\tstuff: " + this.stuff);
+        sb.append("]");
+        return sb.toString();
+    }
 }
 """, hasManyDtoFile.text
         }
@@ -190,9 +223,9 @@ public class HasManyDTO implements grails.plugins.dto.DTO {
         ]
         def mockDomainClass = mock(GrailsDomainClass)
         mockDomainClass.clazz.returns([ package: [ name: "org.example" ] ])
-        mockDomainClass.shortName.returns("MyDomain")
-        mockDomainClass.identifier.returns([ name: "id", association: false, type: long, referencedPropertyType: long ])
-        mockDomainClass.persistentProperties.returns(testProperties)
+        mockDomainClass.shortName.returns("MyDomain").stub()
+        mockDomainClass.identifier.returns([ name: "id", association: false, type: long, referencedPropertyType: long ]).stub()
+        mockDomainClass.persistentProperties.returns(testProperties).stub()
         
         play {
             def writer = new StringWriter()
@@ -224,6 +257,18 @@ public class MyDomainDTO implements grails.plugins.dto.DTO {
     public void setTheOther(OtherDomainDTO theOther) { this.theOther = theOther; }
     public List<HasManyDTO> getItems() { return items; }
     public void setItems(List<HasManyDTO> items) { this.items = items; }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("MyDomainDTO[");
+        sb.append("\\n\\tid: " + this.id);
+        sb.append("\\n\\tname: " + this.name);
+        sb.append("\\n\\tage: " + this.age);
+        sb.append("\\n\\ttheOther: " + this.theOther);
+        sb.append("\\n\\titems: " + this.items);
+        sb.append("]");
+        return sb.toString();
+    }
 }
 """, writer.toString()
         }
@@ -314,6 +359,18 @@ public class MyDomainDTO implements grails.plugins.dto.DTO {
     public void setTheOther(OtherDomainDTO theOther) { this.theOther = theOther; }
     public List<HasManyDTO> getItems() { return items; }
     public void setItems(List<HasManyDTO> items) { this.items = items; }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("MyDomainDTO[");
+        sb.append("\\n\\tid: " + this.id);
+        sb.append("\\n\\tname: " + this.name);
+        sb.append("\\n\\tage: " + this.age);
+        sb.append("\\n\\ttheOther: " + this.theOther);
+        sb.append("\\n\\titems: " + this.items);
+        sb.append("]");
+        return sb.toString();
+    }
 }
 """, myDomainDtoFile.text
 
@@ -335,6 +392,16 @@ public class OtherDomainDTO implements grails.plugins.dto.DTO {
     public void setType(SomeType type) { this.type = type; }
     public MyDomainDTO getOwner() { return owner; }
     public void setOwner(MyDomainDTO owner) { this.owner = owner; }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("OtherDomainDTO[");
+        sb.append("\\n\\tid: " + this.id);
+        sb.append("\\n\\ttype: " + this.type);
+        sb.append("\\n\\towner: " + this.owner);
+        sb.append("]");
+        return sb.toString();
+    }
 }
 """, otherDomainDtoFile.text
 
@@ -359,6 +426,17 @@ public class HasManyDTO implements grails.plugins.dto.DTO {
     public void setAmount(BigDecimal amount) { this.amount = amount; }
     public String getStuff() { return stuff; }
     public void setStuff(String stuff) { this.stuff = stuff; }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("HasManyDTO[");
+        sb.append("\\n\\tuniqueName: " + this.uniqueName);
+        sb.append("\\n\\tnumber: " + this.number);
+        sb.append("\\n\\tamount: " + this.amount);
+        sb.append("\\n\\tstuff: " + this.stuff);
+        sb.append("]");
+        return sb.toString();
+    }
 }
 """, hasManyDtoFile.text
         }
@@ -450,6 +528,18 @@ public class MyDomainDTO implements grails.plugins.dto.DTO {
     public void setTheOther(OtherDomainDTO theOther) { this.theOther = theOther; }
     public List<HasManyDTO> getItems() { return items; }
     public void setItems(List<HasManyDTO> items) { this.items = items; }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("MyDomainDTO[");
+        sb.append("\\n\\tid: " + this.id);
+        sb.append("\\n\\tname: " + this.name);
+        sb.append("\\n\\tage: " + this.age);
+        sb.append("\\n\\ttheOther: " + this.theOther);
+        sb.append("\\n\\titems: " + this.items);
+        sb.append("]");
+        return sb.toString();
+    }
 }
 """, myDomainDtoFile.text
 
@@ -471,6 +561,16 @@ public class OtherDomainDTO implements grails.plugins.dto.DTO {
     public void setType(SomeType type) { this.type = type; }
     public MyDomainDTO getOwner() { return owner; }
     public void setOwner(MyDomainDTO owner) { this.owner = owner; }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("OtherDomainDTO[");
+        sb.append("\\n\\tid: " + this.id);
+        sb.append("\\n\\ttype: " + this.type);
+        sb.append("\\n\\towner: " + this.owner);
+        sb.append("]");
+        return sb.toString();
+    }
 }
 """, otherDomainDtoFile.text
 
@@ -495,6 +595,17 @@ public class HasManyDTO implements grails.plugins.dto.DTO {
     public void setAmount(BigDecimal amount) { this.amount = amount; }
     public String getStuff() { return stuff; }
     public void setStuff(String stuff) { this.stuff = stuff; }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("HasManyDTO[");
+        sb.append("\\n\\tuniqueName: " + this.uniqueName);
+        sb.append("\\n\\tnumber: " + this.number);
+        sb.append("\\n\\tamount: " + this.amount);
+        sb.append("\\n\\tstuff: " + this.stuff);
+        sb.append("]");
+        return sb.toString();
+    }
 }
 """, hasManyDtoFile.text
         }

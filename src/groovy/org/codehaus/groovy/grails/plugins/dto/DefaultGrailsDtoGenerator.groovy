@@ -114,17 +114,17 @@ class DefaultGrailsDtoGenerator {
             writer.write "    public void set${propSuffix}(${field.typeString} ${field.name}) { this.${field.name} = ${field.name}; }${eol}"
         }
 
-		// toString()
-		writer.write “\n\t@Override”
-		writer.write “\n\tpublic String toString() {”
-		writer.write “\n\t\tStringBuilder sb = new StringBuilder();”
-		writer.write “\n\t\tsb.append(\”${dc.shortName}DTO[\");"
-		fields.each { field ->
-			writer.write """\n\t\tsb.append("\\n\\t${field.name}: " + this.${field.name});"""
-		}
-		writer.write "\n\t\tsb.append(\"]\”);”
-		writer.write “\n\t\treturn sb.toString();”
-		writer.write “\n\t}\n”
+        // toString()
+        writer.write eol
+        writer.write "    public String toString() {${eol}"
+        writer.write "        StringBuilder sb = new StringBuilder();${eol}"
+        writer.write "        sb.append(\"${dc.shortName}DTO[\");${eol}"
+        fields.each { field ->
+            writer.write "        sb.append(\"\\n\\t${field.name}: \" + this.${field.name});${eol}"
+        }
+        writer.write "        sb.append(\"]\");${eol}"
+        writer.write "        return sb.toString();${eol}"
+        writer.write "    }${eol}"
 
         // Class terminator.
         writer.write "}${eol}"
