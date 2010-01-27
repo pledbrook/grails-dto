@@ -14,6 +14,8 @@ class DefaultGrailsDtoGeneratorTests extends GroovyTestCase {
         assertEquals "org.another", generator.getTargetPackage("org.another")
         assertEquals "org.ex.dto", generator.getTargetPackage("net.nowhere")
         assertEquals "org.ex.dto.sub", generator.getTargetPackage("net.nowhere.sub")
+        assertEquals "", generator.getTargetPackage("")
+        assertEquals "", generator.getTargetPackage(null)
     }
 
     void testGetTargetPackageWithWildcard() {
@@ -25,6 +27,8 @@ class DefaultGrailsDtoGeneratorTests extends GroovyTestCase {
         assertEquals "org.another.client", generator.getTargetPackage("org.another")
         assertEquals "org.another.client", generator.getTargetPackage("net.nowhere")
         assertEquals "org.another.client", generator.getTargetPackage("net.nowhere.sub")
+        assertEquals "org.another.client", generator.getTargetPackage("")
+        assertEquals "org.another.client", generator.getTargetPackage(null)
     }
 
     void testGetTargetPackageNoTransforms() {
@@ -35,17 +39,21 @@ class DefaultGrailsDtoGeneratorTests extends GroovyTestCase {
         assertEquals "org.another", generator.getTargetPackage("org.another")
         assertEquals "net.nowhere", generator.getTargetPackage("net.nowhere")
         assertEquals "net.nowhere.sub", generator.getTargetPackage("net.nowhere.sub")
+        assertEquals "", generator.getTargetPackage("")
+        assertEquals "", generator.getTargetPackage(null)
     }
 
     void testGetTargetPackageWithWildcardAndOtherTransforms() {
         def generator = new DefaultGrailsDtoGenerator(false)
-        generator.packageTransforms = [ "*": "org.another.client", "net.nowhere": "org.ex.dto" ]
+        generator.packageTransforms = [ "*": "org.another.client", "net.nowhere": "org.ex.dto", "": "dto" ]
         
         assertEquals "org.another.client", generator.getTargetPackage("com.google")
         assertEquals "org.another.client", generator.getTargetPackage("com.google.groups")
         assertEquals "org.another.client", generator.getTargetPackage("org.another")
         assertEquals "org.ex.dto", generator.getTargetPackage("net.nowhere")
         assertEquals "org.ex.dto.sub", generator.getTargetPackage("net.nowhere.sub")
+        assertEquals "dto", generator.getTargetPackage("")
+        assertEquals "dto", generator.getTargetPackage(null)
     }
 
     void testGenerate() {
@@ -236,6 +244,65 @@ public class HasManyDTO implements grails.plugins.dto.DTO {
 package org.example;
 
 import java.util.List;
+import org.example.sub.HasManyDTO;
+
+public class MyDomainDTO implements grails.plugins.dto.DTO {
+    private static final long serialVersionUID = 1L;
+
+    private long id;
+    private String name;
+    private int age;
+    private OtherDomainDTO theOther;
+    private List<HasManyDTO> items;
+
+    public long getId() { return id; }
+    public void setId(long id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public int getAge() { return age; }
+    public void setAge(int age) { this.age = age; }
+    public OtherDomainDTO getTheOther() { return theOther; }
+    public void setTheOther(OtherDomainDTO theOther) { this.theOther = theOther; }
+    public List<HasManyDTO> getItems() { return items; }
+    public void setItems(List<HasManyDTO> items) { this.items = items; }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("MyDomainDTO[");
+        sb.append("\\n\\tid: " + this.id);
+        sb.append("\\n\\tname: " + this.name);
+        sb.append("\\n\\tage: " + this.age);
+        sb.append("\\n\\ttheOther: " + this.theOther);
+        sb.append("\\n\\titems: " + this.items);
+        sb.append("]");
+        return sb.toString();
+    }
+}
+""", writer.toString()
+        }
+    }
+
+    void testGenerateNoRecurseNoPackage() {
+        def testProperties = [
+            [ name: "name", association: false, type: String, referencedPropertyType: String ],
+            [ name: "age", association: false, type: int, referencedPropertyType: int ],
+            [ name: "theOther", association: true, type: org.example.OtherDomain, referencedPropertyType: org.example.OtherDomain ],
+            [ name: "items", association: true, type: List, referencedPropertyType: org.example.sub.HasMany ]
+        ]
+        def mockDomainClass = mock(GrailsDomainClass)
+        mockDomainClass.clazz.returns([ package: [ name: null ] ])
+        mockDomainClass.shortName.returns("MyDomain").stub()
+        mockDomainClass.identifier.returns([ name: "id", association: false, type: long, referencedPropertyType: long ]).stub()
+        mockDomainClass.persistentProperties.returns(testProperties).stub()
+        
+        play {
+            def writer = new StringWriter()
+            def generator = new DefaultGrailsDtoGenerator(false)
+            generator.generateNoRecurse(mockDomainClass, writer)
+            
+            assertEquals "Generated source does not match what was expected.", """\
+import java.util.List;
+import org.example.OtherDomainDTO;
 import org.example.sub.HasManyDTO;
 
 public class MyDomainDTO implements grails.plugins.dto.DTO {

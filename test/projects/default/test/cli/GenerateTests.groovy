@@ -12,8 +12,12 @@ class GenerateTests extends AbstractCliTestCase {
     private static final String SEC_ROLE_MD5 = "995906e9fd730184fa9b56a78c82581a"
     private static final String PAGE_MD5 = "7e769d51e9e30b132b67f9b656c06a21"
     private static final String WIKI_CONTENT_MD5 = "589355d65e02f1382d27a72b08cb72d1"
+    private static final String AUTHOR_MD5 = "dbae8e70a58a66cad7424fb10f835f53"
+    private static final String BOOK_MD5 = "957a253bf03df79dfd15ec9e5a5c8f72"
 
     private final File srcDir = new File("src/java")
+    private final File authorDto = new File(srcDir, "AuthorDTO.java")
+    private final File bookDto = new File(srcDir, "BookDTO.java")
     private final File postDto = new File(srcDir, "org/example/PostDTO.java")
     private final File catDto = new File(srcDir, "org/example/CategoryDTO.java")
     private final File userDto = new File(srcDir, "org/example/security/SecUserDTO.java")
@@ -81,6 +85,34 @@ class GenerateTests extends AbstractCliTestCase {
 
         assertEquals "Unexpected MD5 digest for Page DTO.", PAGE_MD5, DigestUtils.md5Hex(pageDto.text)
         assertEquals "Unexpected MD5 digest for WikiContent DTO.", WIKI_CONTENT_MD5, DigestUtils.md5Hex(wikiDto.text)
+    }
+
+    /**
+     * Tests that a DTO can be generated for a domain class that doesn't
+     * have a package.
+     */
+    void testGenerateWithNoPackageDomain() {
+        workDir = new File(".")
+        execute([ "generate-dto", "Book" ])
+
+        assertEquals 0, waitForProcess()
+        verifyHeader()
+
+        // Make sure that the script was found.
+        assertFalse "GenerateDto script not found.", output.contains("Script not found:")
+
+        // Check that the expected DTO files exist.
+        assertFalse "Post DTO exists, but it shouldn't.", postDto.exists()
+        assertFalse "Category DTO exists, but it shouldn't.", catDto.exists()
+        assertFalse "SecUser DTO exists, but it shouldn't.", userDto.exists()
+        assertFalse "SecRole DTO exists, but it shouldn't.", roleDto.exists()
+        assertFalse "Page DTO exists, but it shouldn't.", pageDto.exists()
+        assertFalse "WikiContent DTO exists, but is shouldn't.", wikiDto.exists()
+        assertTrue "AuthorDTO does not exist.", authorDto.exists()
+        assertTrue "BookDTO does not exist.", bookDto.exists()
+
+        assertEquals "Unexpected MD5 digest for Author DTO.", AUTHOR_MD5, DigestUtils.md5Hex(authorDto.text)
+        assertEquals "Unexpected MD5 digest for Book DTO.", BOOK_MD5, DigestUtils.md5Hex(bookDto.text)
     }
 
     /**
@@ -196,6 +228,33 @@ class GenerateTests extends AbstractCliTestCase {
         assertFalse "WikiContent DTO exists, but it shouldn't.", wikiDto.exists()
 
         assertEquals "Unexpected MD5 digest for Post DTO.", POST_MD5, DigestUtils.md5Hex(postDto.text)
+    }
+
+    /**
+     * Tests that a DTO can be generated non-recursively for a domain
+     * class that doesn't have a package.
+     */
+    void testGenerateNonRecursiveWithNoPackageDomain() {
+        workDir = new File(".")
+        execute([ "generate-dto", "--non-recursive", "Book" ])
+
+        assertEquals 0, waitForProcess()
+        verifyHeader()
+
+        // Make sure that the script was found.
+        assertFalse "GenerateDto script not found.", output.contains("Script not found:")
+
+        // Check that the expected DTO files exist.
+        assertFalse "Post DTO exists, but it shouldn't.", postDto.exists()
+        assertFalse "Category DTO exists, but it shouldn't.", catDto.exists()
+        assertFalse "SecUser DTO exists, but it shouldn't.", userDto.exists()
+        assertFalse "SecRole DTO exists, but it shouldn't.", roleDto.exists()
+        assertFalse "Page DTO exists, but it shouldn't.", pageDto.exists()
+        assertFalse "WikiContent DTO exists, but is shouldn't.", wikiDto.exists()
+        assertFalse "Author DTO exists, but it shouldn't.", authorDto.exists()
+        assertTrue "Book DTO does not exist.", bookDto.exists()
+
+        assertEquals "Unexpected MD5 digest for Book DTO.", BOOK_MD5, DigestUtils.md5Hex(bookDto.text)
     }
 
     /**

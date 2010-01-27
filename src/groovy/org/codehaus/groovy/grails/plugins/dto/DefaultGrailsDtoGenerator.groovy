@@ -115,7 +115,9 @@ class DefaultGrailsDtoGenerator {
         dc.persistentProperties.each(processProperty)
 
         // Start with the package line.
-        writer.write "package ${targetPkg};${eol}${eol}"
+        if (targetPkg) {
+            writer.write "package ${targetPkg};${eol}${eol}"
+        }
 
         // Now add any required imports.
         if (imports) {
@@ -177,19 +179,23 @@ class DefaultGrailsDtoGenerator {
     }
 
     protected File getDtoFile(File rootDir, GrailsDomainClass dc, String targetPkg) {
-        def pkgPath = targetPkg.replace(".", "/")
-        return new File(rootDir, "${pkgPath}/${dc.shortName}DTO.java")
+        def pkgPath = ""
+        if (targetPkg) pkgPath = targetPkg.replace(".", "/") + '/'
+        return new File(rootDir, "${pkgPath}${dc.shortName}DTO.java")
     }
 
     protected String getTargetPackage(final String dcPkg) {
-        def targetPkg = dcPkg
+        def targetPkg = dcPkg ?: ""
         if (packageTransforms) {
             // Find a transform that matches the domain class package.
-            def entry = packageTransforms.find { key, val -> dcPkg?.startsWith(key) }
+            // If the default package is in the transforms map (i.e.
+            // the empty string is a key), the domain class package
+            // must be an exact match. Otherwise, sub-packages match.
+            def entry = packageTransforms.find { key, val -> key ? targetPkg?.startsWith(key) : targetPkg == key }
             if (entry) {
                 // Found one, so use the associated package name as the
                 // target package.
-                targetPkg = dcPkg.replace(entry.key, entry.value)
+                targetPkg = targetPkg.replace(entry.key, entry.value)
             }
             else if (packageTransforms["*"]) {
                 // Didn't find a matching transform, but did find the
