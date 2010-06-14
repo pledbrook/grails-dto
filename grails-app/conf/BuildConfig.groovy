@@ -21,7 +21,12 @@ grails.project.dependency.resolution = {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         // runtime 'com.mysql:mysql-connector-java:5.1.5'
         compile "net.sf.dozer:dozer:5.1", {
-            excludes "commons-logging"
+            // Shouldn't need to exclude the 'provided' dependencies 'spring',
+            // 'xmlbeans' & 'xmlbeans-xpath', but a Grails issue means that they
+            // get included on the classpath:
+            //
+            //    http://jira.codehaus.org/browse/GRAILS-6360
+            excludes "commons-logging", "spring", "xmlbeans", "xmlbeans-xpath"
         }
 
         test "org.gmock:gmock:0.8.0"
