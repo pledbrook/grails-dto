@@ -21,11 +21,9 @@ grails.project.dependency.resolution = {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         // runtime 'com.mysql:mysql-connector-java:5.1.5'
         compile "net.sf.dozer:dozer:5.1", {
-            // Shouldn't need to exclude the 'provided' dependencies 'spring',
-            // 'xmlbeans' & 'xmlbeans-xpath', but a Grails issue means that they
-            // get included on the classpath:
-            //
-            //    http://jira.codehaus.org/browse/GRAILS-6360
+            // Because I'm including Dozer as a compile dependency (as opposed
+            // to a runtime one), I have to exclude the 'provided' transitive
+            // dependencies. I also exclude commons-logging.
             excludes "commons-logging", "spring", "xmlbeans", "xmlbeans-xpath"
         }
 
