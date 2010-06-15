@@ -3,6 +3,7 @@ docs/
 eclipse/
 grails-dto*.zip
 plugin.xml
+stacktrace.log
 target/
 tmp/
 unzipped/
